@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PostRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=PostRepository::class)
@@ -19,6 +20,16 @@ class Post
 
     /**
      * @ORM\Column(type="string", length=100)
+     * @Assert\NotBlank()
+     * @Assert\NotNull()
+     * @Assert\Length(
+     *  min=10,
+     *  minMessage="C'est trop court"
+     * )
+     * @Assert\Type(
+     *  type="string",
+     *  message="Le type {{type}} ne correspond pas à celui attendu. On s'attend à avoir une chaine de caractère"
+     * )
      */
     private $title;
 

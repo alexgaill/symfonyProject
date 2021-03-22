@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\Post;
+use App\Form\PostType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,20 +16,50 @@ class PostController extends AbstractController
      */
     public function index(): Response
     {
-        // $post = new Post();
-        // $post->setTitle("Mon premier article");
-        // $post->setContent("Lorem ipsum dolor, sit amet consectetur adipisicing elit. Labore sequi nesciunt explicabo inventore mollitia qui? Odit sed quisquam quia blanditiis explicabo? Maiores repudiandae, voluptates aspernatur ab labore recusandae minus. Ipsa.");
-        // $post->setCreatedAt(new \DateTime());
-
-        // $em = $this->getDoctrine()->getManager();
-        // $em->persist($post);
-        // $em->flush();
-
         $em = $this->getDoctrine()->getManager();
         $post = $em->getRepository(Post::class)->findAll();
 
         return $this->render('post/index.html.twig', [
             'post' => $post,
+        ]);
+    }
+
+    /**
+     * @Route("/savePost", name="savePost")
+     */
+    public function save(Request $request)
+    {
+        $post = new Post();
+        $form = $this->createForm(PostType::class, $post);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $post = $form->getData();
+            $post->setCreatedAt(new \DateTime());
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($post);
+            $em->flush();
+
+            return $this->redirectToRoute("post");
+        }
+
+        return $this->render("post/save.html.twig", [
+            "form" => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route("/singleArt/{id}", name="singleArt")
+     */
+    public function single($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $post = $em->getRepository(Post::class)->find($id);
+
+        return $this->render("post/single.html.twig", [
+            "post" => $post
         ]);
     }
 }

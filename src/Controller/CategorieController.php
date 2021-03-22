@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Categorie;
 use App\Form\CategorieType;
+use App\Repository\CategorieRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -43,11 +44,24 @@ class CategorieController extends AbstractController
             $entityManager->flush();
             dump($categorie);
 
-            $this->redirectToRoute("categorie");
+            return $this->redirectToRoute("categorie");
         }
 
         return $this->render('categorie/save.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    /**
+     * @Route("/single/{id}", name="singleCat")
+     */
+    public function single($id)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $category = $em->getRepository(Categorie::class)->find($id);
+
+        return $this->render("categorie/single.html.twig", [
+            "categorie" => $category
         ]);
     }
 }
